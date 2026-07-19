@@ -1,0 +1,30 @@
+# OpenChoreo Workload Descriptor for the Doclet frontend.
+# Defines the endpoint this web app exposes and the backend services it connects
+# to. The build's generate-workload step reads this file and creates/replaces the
+# Workload CR, so the source stays the single source of truth.
+apiVersion: openchoreo.dev/v1alpha1
+
+metadata:
+  name: doclet-frontend
+
+endpoints:
+  - name: http
+    port: 80
+    type: HTTP
+    visibility:
+      - external
+
+dependencies:
+  endpoints:
+    # nginx reverse-proxies /api/document-svc to this service
+    - component: doclet-document
+      name: http
+      visibility: project
+      envBindings:
+        address: DOC_SERVICE_URL
+    # nginx reverse-proxies /ws/collab-svc to this service
+    - component: doclet-collab
+      name: ws
+      visibility: project
+      envBindings:
+        address: COLLAB_SERVICE_URL
